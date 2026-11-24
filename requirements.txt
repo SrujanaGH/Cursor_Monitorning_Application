@@ -1,0 +1,3 @@
+# Pinned for reproducible local demo installs
+Flask==3.1.3
+python-dotenv==1.1.1

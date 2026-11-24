@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Monitoring Demo{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="brand" href="{{ url_for('main.home') }}">MonitorLab</a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="{{ url_for('main.home') }}" class="nav-link is-active">Dashboard</a>
+      </nav>
+    </header>
+
+    <main class="site-main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <p>Read-only monitoring demo · mock metrics · local lab use</p>
+    </footer>
+  </div>
+</body>
+</html>
