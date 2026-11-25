@@ -1,23 +1,17 @@
-"""Smoke tests for the Phase 0 UI shell."""
+"""Dashboard shell smoke tests."""
 
 from __future__ import annotations
 
-from app import create_app
-from app.config import Config
 
-
-def test_home_renders_monitoring_placeholder() -> None:
-    app = create_app(
-        Config(
-            secret_key="test-secret-key",
-            demo_mode=True,
-            debug=False,
-        )
-    )
-    client = app.test_client()
-
+def test_home_redirects_to_login_when_anonymous(client) -> None:
     response = client.get("/")
+    assert response.status_code in {302, 303}
+    assert "/login" in (response.headers.get("Location") or "")
 
+
+def test_dashboard_renders_for_authenticated_user(auth_client) -> None:
+    response = auth_client.get("/")
     assert response.status_code == 200
     assert b"Monitoring" in response.data
     assert b"read-only demo" in response.data
+    assert b"No servers yet" in response.data or b"Registered servers" in response.data

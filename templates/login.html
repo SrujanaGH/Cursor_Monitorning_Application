@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Sign in · MonitorLab{% endblock %}
+
+{% block content %}
+<section class="auth-panel">
+  <p class="eyebrow">Monitoring — read-only demo</p>
+  <h1>Sign in</h1>
+  <p class="lede">Use the local demo admin account to view simulated server health.</p>
+
+  <form method="post" action="{{ url_for('auth.login') }}" class="form-stack" novalidate>
+    {{ form.csrf_token }}
+    <label>
+      <span>Username</span>
+      {{ form.username(autocomplete="username") }}
+    </label>
+    <label>
+      <span>Password</span>
+      {{ form.password(autocomplete="current-password") }}
+    </label>
+    {{ form.submit(class_="primary-button") }}
+  </form>
+</section>
+{% endblock %}
