@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ server.name }} · MonitorLab{% endblock %}
+
+{% block content %}
+<section class="hero-panel">
+  <p class="eyebrow"><a href="{{ url_for('main.dashboard') }}">Dashboard</a> / detail</p>
+  <h1>{{ server.name }}</h1>
+  <p class="lede">{{ server.hostname_or_ip }}{% if server.notes %} — {{ server.notes }}{% endif %}</p>
+  <div class="toolbar">
+    <span class="badge badge-{{ metrics.status|lower }}" id="detail-status">{{ metrics.status }}</span>
+    <button type="button" class="secondary-button" id="manual-refresh" data-refresh-target="detail">
+      Refresh now
+    </button>
+    <span class="muted" id="refresh-status" aria-live="polite">Auto-refresh on</span>
+  </div>
+</section>
+
+<section class="metrics-grid" id="detail-metrics" data-server-id="{{ server.id }}">
+  <div class="metric-block">
+    <h2>CPU</h2>
+    <p class="metric-value" data-field="cpu">{{ metrics.cpu_percent }}%</p>
+  </div>
+  <div class="metric-block">
+    <h2>Memory</h2>
+    <p class="metric-value" data-field="mem">{{ metrics.memory.used_gb }} / {{ metrics.memory.total_gb }} GB ({{ metrics.memory.percent }}%)</p>
+  </div>
+  <div class="metric-block">
+    <h2>Network</h2>
+    <p class="metric-value" data-field="net">↓ {{ metrics.network.in_mbps }} Mbps · ↑ {{ metrics.network.out_mbps }} Mbps</p>
+  </div>
+  <div class="metric-block">
+    <h2>Open ports</h2>
+    <p class="metric-value" data-field="ports">{{ metrics.open_ports|join(', ') }}</p>
+  </div>
+</section>
+
+<p class="muted">Values are simulated for demo realism and are not collected from the host.</p>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.MONITORLAB = {
+    refreshSeconds: {{ refresh_seconds|tojson }},
+    metricsUrl: {{ url_for('api.metrics_one', server_id=server.id)|tojson }},
+    mode: "detail"
+  };
+</script>
+<script src="{{ url_for('static', filename='js/refresh.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard · MonitorLab{% endblock %}
+
+{% block content %}
+<section class="hero-panel">
+  <p class="eyebrow">Monitoring — read-only demo</p>
+  <h1>Server health at a glance</h1>
+  <p class="lede">
+    Simulated CPU, memory, network, and ports — no SSH, no remote commands.
+    Metrics refresh every {{ refresh_seconds }} seconds.
+  </p>
+  <div class="toolbar">
+    <button type="button" class="secondary-button" id="manual-refresh" data-refresh-target="dashboard">
+      Refresh now
+    </button>
+    <span class="muted" id="refresh-status" aria-live="polite">Auto-refresh on</span>
+  </div>
+</section>
+
+<section class="split-layout">
+  <div>
+    <h2 class="section-title">Registered servers</h2>
+    {% if cards %}
+      <ul class="server-list" id="server-list">
+        {% for card in cards %}
+          <li class="server-row" data-server-id="{{ card.server.id }}">
+            <div class="server-row-main">
+              <a href="{{ url_for('main.server_detail', server_id=card.server.id) }}">
+                {{ card.server.name }}
+              </a>
+              <span class="host-meta">{{ card.server.hostname_or_ip }}</span>
+            </div>
+            <div class="server-row-metrics">
+              <span class="badge badge-{{ card.metrics.status|lower }}" data-field="status">
+                {{ card.metrics.status }}
+              </span>
+              <span data-field="cpu">CPU {{ card.metrics.cpu_percent }}%</span>
+              <span data-field="mem">Mem {{ card.metrics.memory.percent }}%</span>
+            </div>
+            <form
+              method="post"
+              action="{{ url_for('servers.delete_server', server_id=card.server.id) }}"
+              class="inline-form"
+              onsubmit="return confirm('Remove {{ card.server.name }}?');"
+            >
+              {{ delete_form.csrf_token }}
+              <button type="submit" class="danger-button">Remove</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty-state" id="empty-servers">No servers yet. Add a Linux host below to see mock metrics.</p>
+    {% endif %}
+  </div>
+
+  <aside class="side-panel" aria-labelledby="add-server-heading">
+    <h2 id="add-server-heading" class="section-title">Add Linux server</h2>
+    <form method="post" action="{{ url_for('servers.create_server') }}" class="form-stack">
+      {{ server_form.csrf_token }}
+      <label>
+        <span>Display name</span>
+        {{ server_form.name(placeholder="web-01") }}
+      </label>
+      <label>
+        <span>Hostname or IP</span>
+        {{ server_form.hostname_or_ip(placeholder="10.0.0.12") }}
+      </label>
+      <label>
+        <span>Notes (optional)</span>
+        {{ server_form.notes(rows=3, placeholder="App tier — lab only") }}
+      </label>
+      {{ server_form.submit(class_="primary-button") }}
+    </form>
+  </aside>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.MONITORLAB = {
+    refreshSeconds: {{ refresh_seconds|tojson }},
+    metricsUrl: {{ url_for('api.metrics_list')|tojson }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/refresh.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ code }} · MonitorLab{% endblock %}
+
+{% block content %}
+<section class="hero-panel">
+  <p class="eyebrow">Error {{ code }}</p>
+  <h1>{{ message }}</h1>
+  <p class="lede"><a href="{{ url_for('auth.login') }}">Return to sign in</a></p>
+</section>
+{% endblock %}
